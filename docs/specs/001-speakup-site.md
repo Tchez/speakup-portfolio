@@ -36,7 +36,7 @@ Most visitors never reach the end, so **the slides are ordered by priority**: wh
 - **Media (owner-supplied):** meetup photos (HEIC → JPEG, EXIF/GPS stripped) and meetup videos on YouTube as Shorts (1st, 4th, 16th and 17th meetups, SpookUp, the Dublin international edition).
 
 ### Identity rules (non-negotiable)
-- The name is **SpeakUp Community** (short: SpeakUp). **Never "SpeakUp Palmas".** Instagram handle **`@speakup_cmty`** — never the old handles `@speakup_palmas` or `@SPEAKUP_BR`. The same applies to the YouTube channel's display name and video titles (see Open questions).
+- The name is **SpeakUp Community** (short: SpeakUp). **Never "SpeakUp Palmas".** Instagram handle **`@speakup_cmty`** — never the old handles `@speakup_palmas` or `@SPEAKUP_BR`. The one exception is the YouTube channel name, which YouTube won't let the owner change (see "Resolved after launch").
 - **Logo:** use the **official file only** — `public/speakup-round.png`, byte-identical to the owner's `speakup-round.png` (the circular "SpeakUp · COMMUNITY" logo). Never redraw, recolor, re-typeset, trace to SVG, or generate a "similar" logo. If a layout needs another variant, stop and ask the owner. Some older materials show a "SpeakUp PALMAS" logo — never use that one.
 - Copy voice: **PT-BR body**, English only as seasoning (`Let's SpeakUp!`). Signature: **"Let's SpeakUp!"**. No advanced-English jargon. **No em dashes in visible copy** — use commas, colons or a new sentence (the `<title>` separator is the only exception).
 - Founder credit, where it appears (footer / structured data): **Marco Netto** (`https://tchez.dev/`). Never his full legal name or "Marco Antônio".
@@ -86,7 +86,7 @@ Most visitors never reach the end, so **the slides are ordered by priority**: wh
 8. **Build validation** (`scripts/validate-build.mjs`): metadata/hreflang/canonical/JSON-LD per page; all six channels; the "Horas complementares" certificate line; the official logo's SHA-256 (byte-identical); **fails if any `placeholder-*` media is in the build**; fails on "SpeakUp Palmas", "@speakup_palmas", "SPEAKUP_BR", "Marco Antônio", "Martins", "Porto" anywhere in `dist/`; fails if `robots.txt` stops allowing an AI crawler or `llms.txt` loses its shape or its links.
 9. **Deck navigation (desktop ≥ 1024 × 640):** wheel, trackpad and keys (↑ ↓, PageUp/PageDown, Space, Home/End) move **exactly one slide** with a fixed-duration animation (≈1.1 s to/from the hero, ≈0.7 s otherwise). While a change runs the deck is **locked**: extra, reversed or momentum input is ignored until the slide has arrived and input has been quiet. Slides a few pixels taller than the screen still page normally; genuinely taller slides scroll inside until their edge. Phones scroll freely. Without JS, native CSS scroll-snap is the fallback. *(Owner decision: this intentionally relaxes the original "no scroll hijacking" rule.)*
 10. **Progress header (JS only):** a floating bar hidden on the hero that slides in with the scroll: docked logo (back to the hero) → slide number + name → clickable progress segments → icon-only Instagram and index (`Índice`) buttons. The hero logo flies into the header with the scroll position (scroll-linked, both directions) and turns once per slide change.
-11. **Media carousel ("Nossos encontros"):** horizontal strip of photos (natural aspect ratio) and YouTube Shorts (9:16) at one shared height that follows the screen height, so the slide fits one screen. ◀ ▶ buttons, ← → keys whenever the slide is on screen (↑ ↓ stay with the deck), swipe. Videos are a **facade** with a local cover: **nothing loads from YouTube on page load**; the privacy-enhanced player (`youtube-nocookie.com`) starts when the visitor clicks a cover **or navigates onto a video**, only one plays at a time, and moving off it or leaving the slide stops it. No autoplay on page load or under reduced motion; without JS each cover links to the video. *(Owner decision: autoplay after the visitor's own navigation relaxes the original "no autoplay" rule.)* Never embed Instagram (Meta script, tracking, login wall).
+11. **Media carousel ("Nossos encontros"):** a curated set of highlights, not a per-meetup feed. Horizontal strip of photos (natural aspect ratio) and YouTube Shorts (9:16) at one shared height that follows the screen height, so the slide fits one screen. ◀ ▶ buttons, ← → keys whenever the slide is on screen (↑ ↓ stay with the deck), swipe. Videos are a **facade** with a local cover: **nothing loads from YouTube on page load**; the privacy-enhanced player (`youtube-nocookie.com`) starts when the visitor clicks a cover **or navigates onto a video**, only one plays at a time, and moving off it or leaving the slide stops it. No autoplay on page load or under reduced motion; on iOS the player starts muted (Safari's policy), with unmute and full screen in YouTube's controls; without JS each cover links to the video. *(Owner decision: autoplay after the visitor's own navigation relaxes the original "no autoplay" rule.)* Never embed Instagram (Meta script, tracking, login wall).
 12. **Accessibility & motion:** semantic landmarks, one `h1`, visible focus, keyboard reachable, WCAG AA contrast (never red text on the blue field — use a red tag with white text or white text with a red accent instead). Everything visible without JS; every animation off under `prefers-reduced-motion: reduce`.
 13. **Repo docs and tooling:** `README.md` is the public front page for anyone who finds the repo (the OG image, the link, what SpeakUp is, what's on the site, credits), with no development detail; `CLAUDE.md` is the working agreement (commands, workflow, content editing, architecture, gotchas, the list of external links to the site). `npm test` runs Playwright on desktop 1440 px + mobile 375 px with JS off by default and starts the preview itself; `npm run audit` runs Lighthouse against the bar in the acceptance criteria.
 14. **Mobile (< 1024 px) is an adaptation, not a copy of desktop:** one column; the CTA after the content it sums up; full-width section CTAs whose icon stays on the first line when the label wraps; the media strip edge to edge with the next item peeking in and its height capped by the width; compact agenda, benefit and index rows; the header's progress runs along its bottom edge after the logo.
@@ -104,7 +104,7 @@ Most visitors never reach the end, so **the slides are ordered by priority**: wh
 The look comes from SpeakUp's own Instagram/Canva materials.
 
 - **Colors:** sampled from the official logo — blue `#2B90D8`, red `#EF1F22`, navy `#14364E`, light grey `#E7E7E7`. The raw blue and red fail AA for white body text, so text surfaces use darker shades (blue `#1F6FB2`, red `#D0181C`, blue text `#1B67A6`, red text `#C4161B`). **Restrained palette:** the hero is grey with the only two decorative blobs; every other slide is white or blue; navy is reserved for body text and the footer; red is for highlights, buttons and small accents.
-- **Type — one role per typeface:** Poppins 800 for headings and the signature; Montserrat for all running text, buttons and lists; Bebas Neue only for short uppercase labels. Sizes are fluid, so slides don't look small on large monitors. The script "SpeakUp" lettering exists **only inside the logo image**.
+- **Type — one role per typeface** (confirmed by the owner): Poppins 800 for headings and the signature; Montserrat for all running text, buttons and lists; Bebas Neue only for short uppercase labels. Sizes are fluid, so slides don't look small on large monitors. The script "SpeakUp" lettering exists **only inside the logo image**.
 - **One of each component:** card, red pill button, slide title with a short red bar, label, lead paragraph. Keywords in running text are red bold on white slides and white bold with a red underline on blue slides (plain bold on the mission slide). No forced early line breaks: lead text runs up to ~80 characters per line and titles use the full width with balanced breaks.
 - **Statement slides** (Quem somos, Nossa missão): one idea per slide — label, one large statement, one supporting paragraph.
 - **Motion — light and purposeful:** each slide's content rises in, in reading order, when the slide arrives (again on re-entry); blue slides open from a rounded card to full bleed; the hero blobs drift slowly; a small confetti burst on the hero Instagram CTA; the scroll-linked logo flight; one logo turn per slide change. No 3D. All of it off under reduced motion.
@@ -165,14 +165,15 @@ Steps marked **(Claude)** were run with `gh` after the owner approved them; the 
 - [x] `README.md` presents the project to visitors; `CLAUDE.md` and this SPEC hold everything needed to work on it; external links updated
 - [x] `old/` never reached the public repo; it lives in the owner's vault
 
-## Open questions
+## Resolved after launch (owner, 2026-09-23)
 
-None blocked the launch; all are the owner's.
-- **YouTube identity** — the channel's display name is "SpeakUp Palmas" and the 1st and 4th meetup videos are titled "… SpeakUp Palmas"; it shows inside the player after a click. The owner renames them in YouTube Studio.
-- **Wizard** — confirm the public name ("Wizard Palmas" vs the official "Wizard by Pearson Palmas") and that Wizard agrees with the enrollment/course discount being published.
-- **Fonts** — confirm Poppins / Montserrat / Bebas Neue against the Canva materials.
-- **Safari/iOS autoplay** — check on a real iPhone whether videos start by themselves after navigation or need a tap (browser policy).
-- **Vault** — the vault notes still carry the old one-liner, the seven old values and Bee Cool as a fixed venue; the owner updates them.
+- **YouTube identity:** the channel can't be renamed (YouTube blocks it) and stays "SpeakUp Palmas"; accepted, since YouTube is only the video host for the carousel. The name shows inside the player only after a click.
+- **Wizard:** the public name is **Wizard Palmas** (official: "Wizard by Pearson Palmas"); the short one fits better, like Marco Netto. The discount is published.
+- **Fonts, UI and UX:** confirmed as they are, and the default for future templates and similar sites.
+- **iPhone videos:** the design worked but a video didn't start by itself and showed no full-screen control. iOS Safari only autoplays a cross-origin player when muted, so on iOS the player starts muted; YouTube's own controls then offer unmute and full screen. *(Check on a real iPhone.)*
+- **Carousel updates:** the carousel is a curated set of highlights (starting with Halloween), not a per-meetup feed; new meetups are posted on Instagram, not added to the site.
+- **Cloudflare Web Analytics:** moved to the owner's someday backlog; the site already supports it.
+- **Vault:** updated with the site's copy (mission, values, one-liner, partners, channels); a full review of the SpeakUp vault is a dated task on the owner's side.
 
 ## History
 
@@ -198,6 +199,8 @@ Copy this file as `docs/specs/001-<slug>.md` in the new repo, run the `spec-inte
 - **Discoverability:** canonical + hreflang, JSON-LD, OG images from the untouched logo, AI-crawler `robots.txt`, generated `llms.txt`, Search Console URL-prefix + Bing import.
 - **Launch runbook** above, with `gh` commands.
 - **Docs split:** `README.md` presents the project (OG image, link, what it is); `CLAUDE.md` is for working on it; the SPEC is the what, why and history.
+
+The fonts, UI and UX of this site are the owner-approved default for new templates: change the palette and logo, keep the system.
 
 ### Replace per site
 - Facts, positioning, copy and retired lines (from the vault, via `spec-interview`); channels; partners; media.
