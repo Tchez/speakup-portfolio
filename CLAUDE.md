@@ -18,6 +18,7 @@ Read this file and `docs/specs/001-speakup-site.md` before changing the site. `R
 ## Editing content
 
 - Everything the owner edits lives in `src/data/site.ts`: PT and EN copy, channel URLs, partners and the carousel `media` (in display order). `/llms.txt` follows automatically.
+- The carousel is a curated set of highlights (starting with Halloween), not a per-meetup feed: don't suggest adding every meetup; new meetups go to Instagram.
 - **Photo:** add it to `src/assets/photos/` (any aspect ratio). Convert HEIC first (`sips -s format jpeg in.heic --out out.jpg`) and **strip EXIF/GPS** before committing — the repo is public. `alt` in `pt` and `en` describes the scene and never names people.
 - **Video:** upload to YouTube (unlisted is fine), save its vertical cover to `src/assets/videos/` (`https://i.ytimg.com/vi/<id>/oar2.jpg`, or `oar1.jpg` if that 404s), add `{ type: 'video', youtubeId, orientation, poster, title }`.
 - `PUBLIC_CF_ANALYTICS_TOKEN` (an Actions repository **variable**) turns on the Cloudflare Web Analytics beacon; unset means none.
@@ -38,7 +39,7 @@ If the domain ever changes, update: the Instagram `@speakup_cmty` bio, the Linke
 
 - Colors are sampled from the logo (`src/styles/tokens.css`). Raw blue/red are decorative only; text surfaces use the `-deep` / `-text` shades, which pass WCAG AA. Never red text on blue. Check contrast when adding a color pairing.
 - **Restrained palette:** the hero is grey with the only two blobs; other slides are white or `section-blue`. Navy is the footer and body text only. No extra decorative motifs.
-- Fonts are self-hosted via `@fontsource`, inferred from the Canva materials (owner to confirm). **One role per typeface:** Poppins 800 for headings, big numbers and the signature; Montserrat for running text, buttons and lists; Bebas Neue only for `.label` (short uppercase labels, red on light / white on dark).
+- Fonts are self-hosted via `@fontsource` and confirmed by the owner; this site's fonts, UI and UX are the default for future templates. **One role per typeface:** Poppins 800 for headings, big numbers and the signature; Montserrat for running text, buttons and lists; Bebas Neue only for `.label` (short uppercase labels, red on light / white on dark).
 - **One of each component** in `src/styles/global.css`: `.card`, `.button` (red pill), `.slide-title` (h2 + short red bar), `.label`, `.lead`. Don't add per-section variants. Sizes are fluid tokens (`--text-*`) so slides scale up on large monitors. No forced early line breaks: `.lead` runs to 80ch and titles balance.
 - **Icons:** Tabler Icons (`@tabler/icons`, MIT) via `Icon.astro`, which inlines the SVG at build time — real brand glyphs in one line style. Never hand-draw icons; add one by importing another Tabler SVG.
 - **Statement slides** (`Statement.astro`: Quem somos, Nossa missão): label, one large `h2` statement, one paragraph. Use this for any new "about"-type content instead of packing ideas into one slide.
@@ -53,7 +54,7 @@ If the domain ever changes, update: the Instagram `@speakup_cmty` bio, the Linke
 ## Media carousel
 
 - `MediaCarousel.astro` (slide "Nossos encontros"): a horizontal scroll-snap strip of `media` items — photos at their natural aspect ratio and YouTube videos (9:16 Shorts or 16:9) at one shared height that follows the screen (`--h`), so the slide fits one screen.
-- Videos are a **facade** (local cover + play button): nothing from YouTube loads on page load; without JS the facade links to the video. The `youtube-nocookie.com` player starts when the visitor clicks a cover **or navigates onto a video** (◀ ▶, ← →, swipe) — never on page load or under reduced motion — one at a time; moving off it or leaving the slide stops it. Autoplay after navigation is the owner's call (2026-09-23).
+- Videos are a **facade** (local cover + play button): nothing from YouTube loads on page load; without JS the facade links to the video. The `youtube-nocookie.com` player starts when the visitor clicks a cover **or navigates onto a video** (◀ ▶, ← →, swipe) — never on page load or under reduced motion; on iOS it starts muted (Safari blocks unmuted autoplay in cross-origin frames) — one at a time; moving off it or leaving the slide stops it. Autoplay after navigation is the owner's call (2026-09-23).
 - ← → page the strip whenever its slide covers the middle of the screen (↑ ↓ stay with the deck). Never embed Instagram (Meta script, tracking, login wall).
 
 ## Mobile

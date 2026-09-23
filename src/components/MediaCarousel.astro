@@ -37,6 +37,9 @@ const { locale, labels } = Astro.props;
 
 <script>
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // iOS Safari only lets a cross-origin player start by itself when it is muted, even after a tap on the cover,
+  // so there the video starts muted and the visitor unmutes (or goes full screen) in YouTube's own controls.
+  const ios = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1);
 
   // Videos: the facade (cover + play button) stays in the DOM; playing lays the privacy-enhanced
   // YouTube player over it, stopping removes the player again.
@@ -44,7 +47,7 @@ const { locale, labels } = Astro.props;
     const facade = item.querySelector<HTMLAnchorElement>('a[data-youtube]');
     if (!facade || item.querySelector('iframe')) return;
     const frame = document.createElement('iframe');
-    frame.src = `https://www.youtube-nocookie.com/embed/${facade.dataset.youtube}?autoplay=1&playsinline=1&rel=0`;
+    frame.src = `https://www.youtube-nocookie.com/embed/${facade.dataset.youtube}?autoplay=1&playsinline=1&rel=0&fs=1${ios ? '&mute=1' : ''}`;
     frame.title = facade.dataset.title ?? '';
     frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
     frame.allowFullscreen = true;
