@@ -1,7 +1,7 @@
 /*
  * One role per typeface:
  *   Poppins 800     → headings (h1–h3), big numbers, signature
- *   Montserrat      → all running text, buttons, chips (400 / 600 / 700)
+ *   Montserrat      → all running text, buttons and lists (400 / 600 / 700)
  *   Bebas Neue      → .label only: short uppercase labels, always red on light / white on dark
  */
 * { box-sizing: border-box; }
@@ -22,7 +22,6 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 
 /* Text roles */
 .lead { margin-top: 24px; max-width: 80ch; font-size: var(--text-lg); line-height: 1.55; }
-.note { font-size: var(--text-sm); color: var(--muted); }
 .label { display: block; font-family: var(--font-condensed); font-weight: 400; font-size: clamp(20px, .6vw + 14px, 28px); line-height: 1.1; letter-spacing: .06em; text-transform: uppercase; color: var(--red-text); }
 .on-dark .label { color: var(--white); }
 .kw { color: var(--red-text); font-weight: 700; }
@@ -31,7 +30,6 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 
 /* One card, one button */
 .card { background: var(--white); color: var(--navy); border: 1px solid rgb(20 54 78 / .1); border-radius: var(--radius); padding: clamp(20px, 1.4vw + 8px, 36px); box-shadow: var(--shadow); }
-.card p { font-size: var(--text-sm); }
 .card .label { margin-bottom: 8px; }
 .button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 14px 28px; border: 0; border-radius: 999px; background: var(--red-deep); color: var(--white); box-shadow: 0 10px 24px -12px rgb(208 24 28 / .8); font-family: var(--font-body); font-weight: 700; font-size: clamp(16px, .3vw + 13px, 19px); letter-spacing: .02em; text-decoration: none; text-align: center; cursor: pointer; transition: transform 180ms ease, background-color 180ms ease; }
 .button svg { flex: none; width: 22px; height: 22px; }

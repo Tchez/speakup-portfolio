@@ -145,8 +145,7 @@ export const copy = {
     description: 'Comunidade gratuita de conversação em inglês em Palmas, Tocantins. Venha praticar inglês em encontros mensais, sem julgamento e para todos os níveis.',
     skip: 'Pular para o conteúdo',
     deck: { index: 'Índice', home: 'Início' },
-    languageSwitch: { label: 'English', short: 'EN', aria: 'Read this page in English' },
-    nav: { about: 'Quem somos', meetups: 'Encontros', volunteer: 'Voluntários', partners: 'Parceiros' },
+    languageSwitch: { label: 'English', aria: 'Read this page in English' },
     hero: {
       label: 'SpeakUp Community · Palmas – TO',
       lead: 'Uma comunidade para praticar inglês sem pressão e sem julgamentos.',
@@ -238,8 +237,7 @@ export const copy = {
     description: 'Free English conversation community in Palmas, Tocantins, Brazil. Practice English at monthly in-person meetups. All levels welcome, no judgment.',
     skip: 'Skip to content',
     deck: { index: 'Index', home: 'Home' },
-    languageSwitch: { label: 'Português', short: 'PT', aria: 'Ler esta página em português' },
-    nav: { about: 'About', meetups: 'Meetups', volunteer: 'Volunteer', partners: 'Partners' },
+    languageSwitch: { label: 'Português', aria: 'Ler esta página em português' },
     hero: {
       label: 'SpeakUp Community · Palmas – TO',
       lead: 'A community to practice English with no pressure and no judgment.',
