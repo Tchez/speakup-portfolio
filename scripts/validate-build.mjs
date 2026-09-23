@@ -86,6 +86,13 @@ assert.deepEqual([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => matc
 for (const language of ['pt-BR', 'en']) assert.equal((sitemap.match(new RegExp(`hreflang="${language}"`, 'g')) ?? []).length, 2);
 assert.ok((await read('sitemap-index.xml')).includes(`${site}sitemap-0.xml`));
 assert.ok((await read('robots.txt')).includes(`Sitemap: ${site}sitemap-index.xml`));
+const robots = await read('robots.txt');
+for (const bot of ['GPTBot', 'OAI-SearchBot', 'ClaudeBot', 'Claude-SearchBot', 'PerplexityBot', 'Google-Extended']) assert.ok(robots.includes(`User-agent: ${bot}\nAllow: /`), `robots.txt: ${bot} must be allowed`);
+assert.ok(!/Disallow: \/\s*$/m.test(robots), 'robots.txt must not disallow the whole site');
+const llms = await read('llms.txt');
+assert.ok(llms.startsWith('# SpeakUp Community\n\n> '), 'llms.txt: title + summary blockquote (llmstxt.org)');
+for (const needle of [site, `${site}en/`, 'https://www.instagram.com/speakup_cmty/', '## In English']) assert.ok(llms.includes(needle), `llms.txt: missing ${needle}`);
+assert.ok(!llms.includes('**'), 'llms.txt: markdown emphasis markers leaked from the copy');
 assert.equal((await read('CNAME')).trim(), 'speakup.tchez.dev');
 const notFound = await read('404.html');
 assert.ok(notFound.includes('Página não encontrada.') && notFound.includes('Page not found.'), '404: bilingual');

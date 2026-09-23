@@ -7,7 +7,17 @@ Public site for **SpeakUp Community** — a free, non-profit English conversatio
 - **SPEC 001 implemented locally** ([`docs/specs/001-speakup-site.md`](docs/specs/001-speakup-site.md)): Astro static one-pager, Portuguese at `/`, English at `/en/`, bilingual 404, SEO (canonical, hreflang, Open Graph, `NGO` + `WebSite` JSON-LD, sitemap, robots), conditional Cloudflare Web Analytics and GitHub Pages CI/CD. Lighthouse mobile on both homes: Performance 99, Accessibility 100, Best Practices 100, SEO 100.
 - **Media done:** the "Nossos encontros" carousel has 6 real photos and 7 YouTube Shorts; `npm run validate` passes.
 - **To confirm with the owner:** the fonts (Poppins / Montserrat / Bebas Neue, inferred from the Canva materials).
-- **`old/`** is the old Docusaurus archive; the owner deletes it. Only the official logo was taken from it.
+- **`old/`** is the old Docusaurus archive (internal docs). It is git-ignored and must never be committed to this public repo; the owner deletes it. Only the official logo was taken from it.
+
+## Search and AI discoverability
+
+Same approach as the sibling `placar` (SPEC 009 there): be findable by Google and by AI assistants (ChatGPT, Claude, Gemini, Perplexity).
+
+- **`public/robots.txt`** allows everyone and explicitly allows the AI crawlers (`GPTBot`, `OAI-SearchBot`, `ChatGPT-User`, `ClaudeBot`, `Claude-SearchBot`, `Claude-User`, `PerplexityBot`, `Google-Extended`), training bots included: the site is public promotion with no personal data. Changing that is a one-line edit.
+- **`/llms.txt`** ([llmstxt.org](https://llmstxt.org)) is generated at build time by `src/pages/llms.txt.ts` from `src/data/site.ts`, so it always matches the page. It's a convention, not a guarantee; what actually drives AI answers is being indexed by Google/Bing.
+- **Sitemap** (`@astrojs/sitemap`, with hreflang), canonical + hreflang tags, `NGO` + `WebSite` JSON-LD, Open Graph images.
+- `npm run validate` fails if a crawler loses access or `llms.txt` drifts from the expected shape.
+- Manual, by the owner: Search Console, Bing Webmaster Tools (import from Search Console; Bing's index also feeds ChatGPT search), request indexing. See the SPEC's "Launch runbook".
 
 ## Stack
 
