@@ -9,12 +9,13 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "astro preview --host 127.0.0.1 --port 4331",
     "check": "astro check",
     "astro": "astro",
     "test": "playwright test",
     "validate": "node scripts/validate-build.mjs",
-    "assets": "node scripts/generate-assets.mjs"
+    "assets": "node scripts/generate-assets.mjs",
+    "audit": "node scripts/lighthouse.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

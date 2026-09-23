@@ -9,8 +9,10 @@ export default defineConfig({
   fullyParallel: true,
   workers: 2,
   reporter: 'list',
+  // Serves the last build (`npm run build` first); reuses a preview that is already running.
+  webServer: process.env.PLAYWRIGHT_BASE_URL ? undefined : { command: 'npm run preview', url: 'http://127.0.0.1:4331/', reuseExistingServer: true },
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4321',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4331',
     javaScriptEnabled: false,
     launchOptions: existsSync(brave) ? { executablePath: brave } : {},
   },

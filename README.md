@@ -1,67 +1,53 @@
-# SpeakUp Portfolio
+# SpeakUp Community
 
-Public site for **SpeakUp Community** — a free, non-profit English conversation community from Palmas – TO — at **`speakup.tchez.dev`**. Its job is to be found on Google and send future participants to Instagram, volunteers to the sign-up form and partners to email. Internal docs (org structure, templates, operations) live in the owner's vault and Drive, **never on this site**.
+The [website](https://speakup.tchez.dev) of **SpeakUp Community**, a free, non-profit English conversation community from Palmas – TO, Brazil.
 
-## Current status (2026-09-22)
+[![Deploy](https://github.com/Tchez/speakup-portfolio/actions/workflows/deploy.yml/badge.svg)](https://github.com/Tchez/speakup-portfolio/actions/workflows/deploy.yml)
 
-- **SPEC 001 implemented locally** ([`docs/specs/001-speakup-site.md`](docs/specs/001-speakup-site.md)): Astro static one-pager, Portuguese at `/`, English at `/en/`, bilingual 404, SEO (canonical, hreflang, Open Graph, `NGO` + `WebSite` JSON-LD, sitemap, robots), conditional Cloudflare Web Analytics and GitHub Pages CI/CD. Lighthouse mobile on both homes: Performance 99, Accessibility 100, Best Practices 100, SEO 100.
-- **Media done:** the "Nossos encontros" carousel has 6 real photos and 7 YouTube Shorts; `npm run validate` passes.
-- **To confirm with the owner:** the fonts (Poppins / Montserrat / Bebas Neue, inferred from the Canva materials).
-- **`old/`** is the old Docusaurus archive (internal docs). It is git-ignored and must never be committed to this public repo; the owner deletes it. Only the official logo was taken from it.
+<a href="https://speakup.tchez.dev"><img src="public/og-pt.png" alt="SpeakUp Community — free English conversation community in Palmas, Tocantins. Click to open the site." width="100%"></a>
 
-## Search and AI discoverability
+## About
 
-Same approach as the sibling `placar` (SPEC 009 there): be findable by Google and by AI assistants (ChatGPT, Claude, Gemini, Perplexity).
+SpeakUp holds monthly in-person meetups where anyone, at any level, practices English in a relaxed, judgment-free setting, with debates, games and group activities. The best way to learn English is to practice it.
 
-- **`public/robots.txt`** allows everyone and explicitly allows the AI crawlers (`GPTBot`, `OAI-SearchBot`, `ChatGPT-User`, `ClaudeBot`, `Claude-SearchBot`, `Claude-User`, `PerplexityBot`, `Google-Extended`), training bots included: the site is public promotion with no personal data. Changing that is a one-line edit.
-- **`/llms.txt`** ([llmstxt.org](https://llmstxt.org)) is generated at build time by `src/pages/llms.txt.ts` from `src/data/site.ts`, so it always matches the page. It's a convention, not a guarantee; what actually drives AI answers is being indexed by Google/Bing.
-- **Sitemap** (`@astrojs/sitemap`, with hreflang), canonical + hreflang tags, `NGO` + `WebSite` JSON-LD, Open Graph images.
-- `npm run validate` fails if a crawler loses access or `llms.txt` drifts from the expected shape.
-- Manual, by the owner: Search Console, Bing Webmaster Tools (import from Search Console; Bing's index also feeds ChatGPT search), request indexing. See the SPEC's "Launch runbook".
+The site works like a slide deck, in Portuguese ([speakup.tchez.dev](https://speakup.tchez.dev/)) and English ([speakup.tchez.dev/en](https://speakup.tchez.dev/en/)):
 
-## Stack
+- how the meetups work and why to join;
+- photos and videos of past editions;
+- how to volunteer and who our partners are;
+- who we are, our mission and values, and every way to reach us.
 
-Astro 7 · TypeScript (strict) · static output · Node 22 · GitHub Pages via GitHub Actions · Playwright tests · self-hosted fonts via `@fontsource`. Stack, CI and validation mirror the sibling repo `~/projects/personal/portfolio`.
+**Let's SpeakUp!** Follow [@speakup_cmty](https://www.instagram.com/speakup_cmty/) for the next meetup.
 
-```sh
-nvm use            # Node 22
-npm ci
-npm run dev        # local dev server
-npm run check      # astro check
-npm run build      # → dist/
-npm run validate   # static acceptance checks on dist/
-npm run preview -- --host 127.0.0.1 --port 4331
-PLAYWRIGHT_BASE_URL=http://127.0.0.1:4331 npm test
-npm run assets     # regenerate OG images and favicons from the official logo
+## Repository
+
+```
+src/
+  data/site.ts      all the text (PT + EN), links, partners, photos and videos
+  components/       the slides, the photo/video carousel, icons
+  layouts/          page head: SEO, social previews, structured data
+  pages/            / (PT), /en/, 404, llms.txt
+  assets/           meetup photos and video covers
+  styles/           colors, fonts and shared styles
+public/             logo, social preview images, robots.txt, CNAME
+scripts/            build checks, image generation, Lighthouse audit
+tests/              browser tests (desktop and mobile)
+docs/specs/         the SPEC: what the site is, why, and its history
 ```
 
-## Editing content
+## Running it locally
 
-Everything the owner edits lives in **`src/data/site.ts`**: PT and EN copy, channel URLs, partners and the carousel media.
+Needs Node 22.
 
-### Adding photos and videos to the carousel
+```sh
+npm ci            # install
+npm run dev       # local dev server
+npm run build     # build the static site into dist/
+npm test          # browser tests
+```
 
-All carousel items live in `media` in `src/data/site.ts`, in display order.
+Changes go through a pull request to `main`; merging publishes the site on GitHub Pages.
 
-- **Photo:** put the file in `src/assets/photos/` (any aspect ratio; it keeps its shape). Convert HEIC to JPEG first (`sips -s format jpeg in.heic --out out.jpg`) and **strip EXIF/GPS** before committing — the repo is public. Add an entry with `alt` in `pt` and `en` that describes the scene and never names people.
-- **Video:** upload to YouTube (unlisted is fine), save its vertical cover to `src/assets/videos/` (`https://i.ytimg.com/vi/<id>/oar2.jpg`, or `oar1.jpg` if that 404s) and add `{ type: 'video', youtubeId, orientation, poster, title }`. Nothing loads from YouTube until a visitor clicks play.
-- Files named `placeholder-*` make `npm run validate` fail, so a stand-in can never ship by accident.
+---
 
-## Deploy
-
-- PRs to `main` run install → `astro check` → build → validate.
-- Pushes to `main` also upload `dist/` and deploy through the `github-pages` environment.
-- `PUBLIC_CF_ANALYTICS_TOKEN` (Actions repository **variable**) turns on the Cloudflare Web Analytics beacon; unset means no beacon.
-- The launch steps (GitHub repo, branch protection, Pages, Cloudflare DNS, custom domain, Search Console, analytics) are in the SPEC's "Launch runbook" and are done by hand by the owner.
-
-## After `speakup.tchez.dev` goes live — update every link that points to SpeakUp
-
-The community's public docs have had no public URL since they left the blog on 2026-09-22 (the old `tchez.dev/pt/notes/speakup-community/` is a permanent 404, and the Instagram bio link to it was already removed). Once the site is live, point all of these at `https://speakup.tchez.dev`:
-
-- [ ] Instagram `@speakup_cmty` — bio link
-- [ ] LinkedIn company page (`https://www.linkedin.com/company/speakup-cmty`) — website field
-- [ ] Discord server (`https://discord.gg/azsgD8T5tP`) — server description / welcome or rules channel
-- [ ] WhatsApp group (`https://chat.whatsapp.com/FI9mvqI9z1CAyjZFEXLpGu`) — group description
-- [ ] Portfolio `tchez.dev` — the SpeakUp Community project card (today it links LinkedIn + Instagram) → add `speakup.tchez.dev` as the main link
-- [ ] Any event material that prints a link (post templates, certificates, feedback forms) — check `speakup-automations` and the Drive templates for the old URL
-- [ ] Search Console — add a URL-prefix property `https://speakup.tchez.dev/` (the domain property `sc-domain:tchez.dev` already covers it) and submit the sitemap
+Created by [Marco Netto](https://tchez.dev/).
