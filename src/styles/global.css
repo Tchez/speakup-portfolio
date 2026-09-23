@@ -1,0 +1,141 @@
+/*
+ * One role per typeface:
+ *   Poppins 800     → headings (h1–h3), big numbers, signature
+ *   Montserrat      → all running text, buttons, chips (400 / 600 / 700)
+ *   Bebas Neue      → .label only: short uppercase labels, always red on light / white on dark
+ */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--white); color: var(--navy); font-family: var(--font-body); font-size: var(--text-base); line-height: 1.6; letter-spacing: .01em; -webkit-font-smoothing: antialiased; overflow-x: clip; }
+h1, h2, h3, p, ul, ol { margin: 0; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; line-height: 1.1; letter-spacing: -.015em; }
+h2 { font-size: var(--text-h2); }
+h3 { font-size: var(--text-h3); }
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-underline-offset: .25em; }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--navy); outline-offset: 4px; border-radius: 4px; }
+.on-dark a:focus-visible { outline-color: var(--white); }
+::selection { background: var(--red-deep); color: var(--white); }
+.container { width: min(var(--container), 100% - 2 * var(--gutter) - 16px); margin-inline: auto; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip-link { position: absolute; z-index: 30; top: 8px; left: 8px; padding: 10px 18px; background: var(--navy); color: var(--white); border-radius: 8px; transform: translateY(-200%); }
+.skip-link:focus { transform: none; }
+
+/* Text roles */
+.lead { margin-top: 24px; max-width: 80ch; font-size: var(--text-lg); line-height: 1.55; }
+.note { font-size: var(--text-sm); color: var(--muted); }
+.label { display: block; font-family: var(--font-condensed); font-weight: 400; font-size: clamp(20px, .6vw + 14px, 28px); line-height: 1.1; letter-spacing: .06em; text-transform: uppercase; color: var(--red-text); }
+.on-dark .label { color: var(--white); }
+.kw { color: var(--red-text); font-weight: 700; }
+.on-dark .kw { color: var(--white); font-weight: 800; text-decoration: underline 3px var(--red); text-underline-offset: .2em; }
+.slide-title::after { content: ''; display: block; width: 64px; height: 6px; margin-top: 18px; border-radius: 3px; background: var(--red); }
+
+/* One card, one button */
+.card { background: var(--white); color: var(--navy); border: 1px solid rgb(20 54 78 / .1); border-radius: var(--radius); padding: clamp(20px, 1.4vw + 8px, 36px); box-shadow: var(--shadow); }
+.card p { font-size: var(--text-sm); }
+.card .label { margin-bottom: 8px; }
+.button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 14px 28px; border: 0; border-radius: 999px; background: var(--red-deep); color: var(--white); box-shadow: 0 10px 24px -12px rgb(208 24 28 / .8); font-family: var(--font-body); font-weight: 700; font-size: clamp(16px, .3vw + 13px, 19px); letter-spacing: .02em; text-decoration: none; text-align: center; cursor: pointer; transition: transform 180ms ease, background-color 180ms ease; }
+.button svg { flex: none; width: 22px; height: 22px; }
+.button:hover { transform: translateY(-2px); background: #B51419; }
+.actions { margin-top: 32px; }
+
+/* Slides: every section fills the screen */
+.section { position: relative; min-height: 100vh; min-height: 100svh; display: grid; align-content: center; padding-block: 88px 112px; overflow: hidden; isolation: isolate; scroll-snap-align: start; }
+/* Grid children default to min-width: auto and would stretch to fit wide content (e.g. the media strip). */
+.section > * { min-width: 0; }
+.section-grey { background: var(--grey); }
+.section-white { background: var(--white); }
+.section-blue { background: var(--blue-deep); color: var(--white); }
+
+.blob { position: absolute; z-index: -1; width: var(--size, 280px); aspect-ratio: 1; border-radius: 58% 42% 55% 45% / 45% 55% 45% 55%; background: var(--color, var(--blue)); pointer-events: none; animation: drift var(--duration, 26s) ease-in-out infinite alternate; }
+@keyframes drift {
+  from { transform: translate(0, 0) rotate(0deg); border-radius: 58% 42% 55% 45% / 45% 55% 45% 55%; }
+  to { transform: translate(18px, -14px) rotate(14deg); border-radius: 45% 55% 42% 58% / 55% 45% 55% 45%; }
+}
+
+/* Slide transition, armed by JS only when motion is allowed, so content never hides without it:
+   content rises in, in reading order, each time its slide comes into view. */
+.motion [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity 450ms ease, transform 500ms cubic-bezier(.2, .7, .3, 1); transition-delay: calc(var(--i, 0) * 60ms); }
+.motion [data-reveal].is-visible { opacity: 1; transform: none; }
+
+/* Blue slides open from a rounded card to full bleed as they scroll in (where scroll-driven animations exist). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section-blue { animation: slide-open linear both; }
+    /* Separate, more specific rule: the minifier would otherwise fold the timeline into the shorthand, which is invalid. */
+    .section.section-blue { animation-timeline: view(); animation-range: entry 0% entry 80%; }
+    @keyframes slide-open {
+      from { clip-path: inset(0 5% round 56px); }
+      to { clip-path: inset(0 0 round 0); }
+    }
+  }
+}
+
+/* Progress header: a floating bar that slides in once the visitor leaves the hero.
+   [logo] [NN section name] [progress segments] ............ [instagram] [index] */
+.deck-header { display: none; }
+.js .deck-header { position: fixed; z-index: 20; top: 10px; left: 10px; right: 10px; height: 60px; display: flex; align-items: center; gap: 16px; padding: 0 8px 0 8px; border-radius: 999px; background: rgb(255 255 255 / .97); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 12px 32px -16px rgb(20 54 78 / .45); border: 1px solid rgb(20 54 78 / .08); color: var(--navy); transform: translateY(calc((var(--reveal, 0) - 1) * (100% + 24px))); opacity: min(1, calc(var(--reveal, 0) * 4)); }
+/* --reveal (0 → 1) is set from the scroll position between the hero and slide 2. */
+.on-hero .deck-header { visibility: hidden; }
+.deck-home { flex: none; display: block; border-radius: 50%; }
+.dock { display: block; width: var(--dock); height: var(--dock); }
+.dock img { width: 100%; height: 100%; border-radius: 50%; }
+.motion .dock-static { visibility: hidden; }
+.deck-logo { position: fixed; z-index: 21; left: 0; top: 0; width: 100px; height: 100px; transform-origin: 0 0; pointer-events: none; visibility: hidden; will-change: transform; }
+.deck-logo img { width: 100%; height: 100%; border-radius: 50%; filter: drop-shadow(0 6px 10px rgb(20 54 78 / .25)); }
+
+.deck-title { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+.deck-num { font-family: var(--font-condensed); font-size: 22px; letter-spacing: .06em; color: var(--red-text); }
+.deck-title [data-deck-title] { overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display); font-weight: 800; font-size: clamp(15px, .4vw + 12px, 19px); }
+
+/* Mobile: the progress runs along the bottom edge of the bar. */
+.deck-progress { position: absolute; left: calc(var(--dock) + 30px); right: 30px; bottom: 0; display: flex; gap: 3px; list-style: none; padding: 0; margin: 0; }
+.deck-progress li { flex: 1; }
+.deck-progress a { display: block; padding-block: 4px 5px; }
+.deck-progress a::before { content: ""; display: block; height: 3px; border-radius: 3px; background: rgb(20 54 78 / .12); transition: background-color 300ms ease; }
+.deck-progress .is-done a::before { background: var(--navy); }
+.deck-progress .is-current a::before { background: var(--red); }
+
+.deck-actions { flex: none; display: flex; gap: 6px; margin-left: auto; }
+.icon-button { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--navy); background: var(--white); color: var(--navy); cursor: pointer; list-style: none; transition: transform 160ms ease, background-color 160ms ease; }
+.icon-button:hover { transform: scale(1.06); }
+.icon-button svg { width: 20px; height: 20px; }
+.icon-button-red { border-color: var(--red-deep); background: var(--red-deep); color: var(--white); }
+.icon-button-red:hover { background: #B51419; }
+.deck-index { position: relative; }
+.deck-index summary::-webkit-details-marker { display: none; }
+.deck-index[open] summary { background: var(--navy); color: var(--white); }
+.deck-index ol { position: absolute; right: 0; top: calc(100% + 14px); width: min(340px, calc(100vw - 20px)); max-height: calc(100vh - 100px); max-height: calc(100svh - 100px); overflow: auto; list-style: none; padding: 10px; background: var(--white); color: var(--navy); border-radius: var(--radius); box-shadow: 0 24px 60px -20px rgb(20 54 78 / .5); }
+.deck-index a { display: flex; gap: 14px; align-items: baseline; padding: 10px 12px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: var(--text-sm); }
+.deck-index a:hover, .deck-index a[aria-current="true"] { background: var(--grey); }
+.deck-index a span { font-family: var(--font-condensed); font-size: 20px; color: var(--red-text); min-width: 2ch; }
+
+/* Phones: full-width CTAs (a standard thumb target), a slimmer bottom margin, a compact index. */
+@media (max-width: 1023px) {
+  .section { padding-block: 96px 72px; }
+  /* Block + inline icon: when a long label wraps, the icon stays next to its first line, all centered. */
+  .actions .button, .partner-join .button { display: block; width: 100%; padding-block: 15px; line-height: 1.4; text-wrap: balance; }
+  .actions .button svg, .partner-join .button svg { display: inline-block; vertical-align: -5px; margin-right: 10px; }
+  .deck-index a { padding-block: 8px; }
+  .deck-index a span { font-size: 18px; }
+}
+
+@media (min-width: 1024px) {
+  .section { padding-block: 104px 88px; }
+  .js .deck-header { top: 14px; left: 50%; right: auto; width: min(1320px, 100% - 2 * var(--gutter)); transform: translate(-50%, calc((var(--reveal, 0) - 1) * (100% + 24px))); height: 68px; gap: 24px; padding: 0 10px; }
+  .deck-title { flex: 0 1 auto; max-width: 34%; }
+  .deck-progress { position: static; flex: 1 1 auto; max-width: 520px; gap: 5px; margin-left: auto; }
+  .deck-progress a { padding-block: 12px; }
+  .deck-progress a::before { height: 6px; }
+  .deck-progress a:hover::before { background: var(--blue); }
+  .deck-actions { margin-left: 0; gap: 8px; }
+  .icon-button { width: 48px; height: 48px; }
+}
+/* Desktop decks page one slide per gesture. With JS the deck script owns paging (CSS snap would
+   re-snap to its own last target and fight it); without JS, native snapping is the fallback. */
+@media (min-width: 1024px) and (min-height: 640px) {
+  html:not(.js) { scroll-snap-type: y mandatory; }
+  .site-footer { scroll-snap-align: end; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

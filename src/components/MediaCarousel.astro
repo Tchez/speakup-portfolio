@@ -1,0 +1,165 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { media, type Locale } from '../data/site';
+
+// Horizontal strip of meetup photos and videos: same height for every item, each at its natural aspect ratio.
+// Videos are a click-to-play facade — nothing loads from YouTube until the visitor clicks,
+// and without JS the facade is a plain link to the video.
+interface Props {
+  locale: Locale;
+  labels: { prev: string; next: string; play: string; region: string };
+}
+const { locale, labels } = Astro.props;
+---
+<div class="carousel" data-carousel data-reveal>
+  <ul class="media-track" tabindex="0" aria-label={labels.region}>
+    {media.map((item) => (
+      <li class={`media-item media-${item.type === 'video' ? `video media-${item.orientation}` : 'photo'}`} style={item.type === 'photo' ? `aspect-ratio: ${item.src.width} / ${item.src.height}` : undefined}>
+        {item.type === 'photo' ? (
+          <Image src={item.src} alt={item.alt[locale]} widths={[480, 800, 1200]} sizes="(min-width: 1024px) 760px, 85vw" loading="lazy" decoding="async" />
+        ) : (
+          <a class="video-facade" href={`https://www.youtube.com/watch?v=${item.youtubeId}`} target="_blank" rel="noopener" data-youtube={item.youtubeId} data-title={item.title[locale]} aria-label={`${labels.play}: ${item.title[locale]}`}>
+            {item.poster
+              ? <Image src={item.poster} alt="" widths={[480, 800]} sizes="(min-width: 1024px) 420px, 85vw" loading="lazy" decoding="async" />
+              : <img src={`https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" width="480" height="360" />}
+            <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" /></svg></span>
+          </a>
+        )}
+      </li>
+    ))}
+  </ul>
+  <div class="carousel-controls">
+    <button type="button" class="icon-button" data-carousel-prev aria-label={labels.prev}><Icon name="arrow" /></button>
+    <button type="button" class="icon-button" data-carousel-next aria-label={labels.next}><Icon name="arrow" /></button>
+  </div>
+</div>
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Videos: the facade (cover + play button) stays in the DOM; playing lays the privacy-enhanced
+  // YouTube player over it, stopping removes the player again.
+  const play = (item: HTMLElement) => {
+    const facade = item.querySelector<HTMLAnchorElement>('a[data-youtube]');
+    if (!facade || item.querySelector('iframe')) return;
+    const frame = document.createElement('iframe');
+    frame.src = `https://www.youtube-nocookie.com/embed/${facade.dataset.youtube}?autoplay=1&playsinline=1&rel=0`;
+    frame.title = facade.dataset.title ?? '';
+    frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    frame.allowFullscreen = true;
+    item.append(frame);
+    item.classList.add('is-playing');
+  };
+  const stop = (item: HTMLElement) => {
+    item.querySelector('iframe')?.remove();
+    item.classList.remove('is-playing');
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((carousel) => {
+    const track = carousel.querySelector<HTMLElement>('.media-track')!;
+    const prev = carousel.querySelector<HTMLButtonElement>('[data-carousel-prev]')!;
+    const next = carousel.querySelector<HTMLButtonElement>('[data-carousel-next]')!;
+    const slide = carousel.closest<HTMLElement>('.section');
+    const items = () => [...track.children] as HTMLElement[];
+    // Nothing plays until the visitor has used the carousel (never on page load).
+    let engaged = false;
+
+    const current = () => {
+      const center = track.scrollLeft + track.clientWidth / 2;
+      return items().reduce((best, item, index, all) =>
+        Math.abs(item.offsetLeft + item.offsetWidth / 2 - center) < Math.abs(all[best].offsetLeft + all[best].offsetWidth / 2 - center) ? index : best, 0);
+    };
+    const go = (direction: number) => {
+      engaged = true;
+      const list = items();
+      const target = list[Math.max(0, Math.min(current() + direction, list.length - 1))];
+      track.scrollTo({ left: target.offsetLeft - (track.clientWidth - target.offsetWidth) / 2, behavior: reduced ? 'auto' : 'smooth' });
+    };
+    const update = () => {
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
+    };
+    // When the strip comes to rest: stop anything off-center; auto-play the centered video.
+    // The slide counts as on screen while it covers the middle of the viewport.
+    const onScreen = () => {
+      const rect = (slide ?? carousel).getBoundingClientRect();
+      return rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2;
+    };
+    const settle = () => {
+      const centered = items()[current()];
+      items().forEach((item) => { if (item !== centered) stop(item); });
+      // onScreen(): the strip may finish gliding after the visitor already left the slide.
+      if (engaged && !reduced && onScreen() && centered?.classList.contains('media-video')) play(centered);
+    };
+    let settleTimer = 0;
+    track.addEventListener('scroll', () => {
+      update();
+      clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(settle, 140);
+    }, { passive: true });
+    for (const type of ['pointerdown', 'touchstart', 'wheel']) track.addEventListener(type, () => { engaged = true; }, { passive: true });
+
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go(1));
+
+    // ← → work whenever this slide is on screen (↑ ↓ stay with the deck). Keys typed into the
+    // YouTube player never reach the page, so they keep controlling the video.
+    window.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if ((event.target as Element).closest?.('input, textarea, select, [contenteditable="true"]')) return;
+      if (!onScreen()) return;
+      event.preventDefault();
+      go(event.key === 'ArrowLeft' ? -1 : 1);
+    });
+
+    // Leaving the slide (less than half of it on screen) stops every video.
+    if (slide) new IntersectionObserver(([entry]) => { if (entry.intersectionRatio < 0.5) items().forEach(stop); }, { threshold: [0, 0.5] }).observe(slide);
+
+    // Clicking a cover plays that video right away (without JS it is a plain link to YouTube).
+    track.addEventListener('click', (event) => {
+      const facade = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[data-youtube]');
+      if (!facade) return;
+      event.preventDefault();
+      engaged = true;
+      const item = facade.closest<HTMLElement>('.media-item')!;
+      items().forEach((other) => { if (other !== item) stop(other); });
+      play(item);
+    });
+
+    update();
+  });
+</script>
+
+<style>
+  .carousel { margin-top: clamp(28px, 2vw + 12px, 48px); /* Height follows the screen so the whole slide (title, lead, strip, controls) fits: ~500px of chrome. */
+    --h: clamp(220px, calc(100vh - 500px), 580px); --h: clamp(220px, calc(100svh - 500px), 580px); }
+  /* position: relative makes the items' offsetLeft relative to the track — the step math depends on it. */
+  .media-track { position: relative; list-style: none; margin: 0; padding: 4px 2px 12px; display: flex; gap: clamp(12px, 1vw + 6px, 24px); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: thin; border-radius: var(--radius-small); }
+  .media-track:focus-visible { outline: 3px solid var(--navy); outline-offset: 4px; }
+  .media-item { position: relative; flex: none; height: var(--h); max-width: 85vw; scroll-snap-align: center; border-radius: var(--radius-small); overflow: hidden; background: var(--grey); }
+  .media-horizontal { aspect-ratio: 16 / 9; }
+  .media-vertical { aspect-ratio: 9 / 16; }
+  .media-item :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .media-item :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+  .video-facade { position: relative; display: block; width: 100%; height: 100%; }
+  .play { position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px 0 0 -36px; display: grid; place-items: center; border-radius: 50%; background: var(--red-deep); color: var(--white); box-shadow: 0 10px 30px -8px rgb(0 0 0 / .5); transition: transform 180ms ease; }
+  .play svg { width: 34px; height: 34px; margin-left: 4px; }
+  .video-facade:hover .play { transform: scale(1.08); }
+  .carousel-controls { display: none; }
+  :global(.js) .carousel-controls { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+  [data-carousel-prev] :global(svg) { transform: rotate(180deg); }
+  .carousel-controls button:disabled { opacity: .35; cursor: default; transform: none; }
+  /* Phones: the strip runs edge to edge, so the next item peeks in and invites a swipe; the height is capped
+     by the width so a landscape photo is barely cropped. */
+  @media (max-width: 1023px) {
+    .carousel { --h: clamp(220px, min(100svh - 400px, 68vw), 520px); }
+    .media-track { margin-inline: calc((100% - 100vw) / 2); padding-inline: calc((100vw - 100%) / 2); scroll-padding-inline: calc((100vw - 100%) / 2); scrollbar-width: none; }
+    .media-track::-webkit-scrollbar { display: none; }
+    .media-item { max-width: 80vw; }
+    .play { width: 60px; height: 60px; margin: -30px 0 0 -30px; }
+    .play svg { width: 28px; height: 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .media-track { scroll-behavior: auto; } }
+</style>

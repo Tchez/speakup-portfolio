@@ -1,0 +1,22 @@
+/* Latin covers Portuguese and English; self-hosted, no font CDN requests. */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('@fontsource/poppins/files/poppins-latin-800-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Montserrat Variable';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bebas Neue';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2') format('woff2');
+}

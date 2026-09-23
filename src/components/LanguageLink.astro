@@ -1,0 +1,16 @@
+---
+import { copy, homePath, htmlLang, type Locale } from '../data/site';
+
+interface Props {
+  locale: Locale;
+}
+const other: Locale = Astro.props.locale === 'pt' ? 'en' : 'pt';
+const { label, aria } = copy[Astro.props.locale].languageSwitch;
+---
+<a class="language-link" href={homePath[other]} hreflang={htmlLang[other]} lang={htmlLang[other]} title={aria}>{label}</a>
+
+<style>
+  .language-link { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; border: 2px solid currentColor; border-radius: 999px; font-weight: 700; font-size: 14px; letter-spacing: .04em; text-decoration: none; }
+  .language-link:hover { background: var(--navy); border-color: var(--navy); color: var(--white); }
+  :global(.on-dark) .language-link:hover { background: var(--white); border-color: var(--white); color: var(--navy); }
+</style>

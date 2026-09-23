@@ -1,0 +1,82 @@
+---
+import '../styles/fonts.css';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import { channels, copy, homePath, htmlLang, site, type Locale } from '../data/site';
+
+interface Props {
+  locale: Locale;
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  home?: boolean;
+  canonicalPath?: string;
+  alternates?: Record<Locale, string>;
+}
+const { locale, title = copy[locale].title, description = copy[locale].description,
+  noindex = false, home = false, canonicalPath = Astro.url.pathname, alternates = homePath } = Astro.props;
+const url = new URL(canonicalPath, site.url).href;
+const ogImage = new URL(`og-${locale}.png`, site.url).href;
+const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+const orgId = `${site.url}#organization`;
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'NGO', '@id': orgId, name: site.name, alternateName: site.shortName,
+      url: site.url, logo: new URL(site.logo, site.url).href, description,
+      foundingDate: site.foundingDate,
+      founder: { '@type': 'Person', name: site.founder.name, url: site.founder.url },
+      address: { '@type': 'PostalAddress', addressLocality: 'Palmas', addressRegion: 'TO', addressCountry: 'BR' },
+      areaServed: 'Palmas, Tocantins, Brasil',
+      email: channels.email,
+      sameAs: [channels.instagram, channels.linkedin],
+    },
+    {
+      '@type': 'WebSite', '@id': `${site.url}#website`, name: site.name, url: site.url,
+      inLanguage: ['pt-BR', 'en'], publisher: { '@id': orgId },
+    },
+  ],
+};
+---
+<!doctype html>
+<html lang={htmlLang[locale]}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>document.documentElement.classList.add('js', 'on-hero');</script>
+    <meta name="theme-color" content="#1F6FB2" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={site.founder.name} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <link rel="canonical" href={url} />
+    <link rel="alternate" hreflang="pt-BR" href={new URL(alternates.pt, site.url).href} />
+    <link rel="alternate" hreflang="en" href={new URL(alternates.en, site.url).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(alternates.pt, site.url).href} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={locale === 'pt' ? 'pt_BR' : 'en_US'} />
+    <meta property="og:locale:alternate" content={locale === 'pt' ? 'en_US' : 'pt_BR'} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={copy[locale].hero.logoAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {home && <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />}
+    {analyticsToken && <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: analyticsToken })}></script>}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{copy[locale].skip}</a>
+    <slot />
+  </body>
+</html>

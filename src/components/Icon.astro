@@ -1,0 +1,25 @@
+---
+// Icons come from Tabler Icons (MIT, @tabler/icons): real brand glyphs, one consistent line style.
+// The SVG files are read at build time; only their inner markup is inlined.
+import instagram from '@tabler/icons/outline/brand-instagram.svg?raw';
+import whatsapp from '@tabler/icons/outline/brand-whatsapp.svg?raw';
+import discord from '@tabler/icons/outline/brand-discord.svg?raw';
+import linkedin from '@tabler/icons/outline/brand-linkedin.svg?raw';
+import form from '@tabler/icons/outline/forms.svg?raw';
+import email from '@tabler/icons/outline/mail.svg?raw';
+import arrow from '@tabler/icons/outline/arrow-right.svg?raw';
+import menu from '@tabler/icons/outline/menu-2.svg?raw';
+import check from '@tabler/icons/outline/check.svg?raw';
+
+const sources = { instagram, whatsapp, discord, linkedin, form, email, arrow, menu, check };
+
+interface Props {
+  name: keyof typeof sources;
+}
+const inner = sources[Astro.props.name]
+  .replace(/^[\s\S]*?<svg[^>]*>/, '')
+  .replace(/<\/svg>\s*$/, '')
+  .replace(/<path stroke="none" d="M0 0h24v24H0z" fill="none"\s*\/>/, '')
+  .trim();
+---
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" set:html={inner} />

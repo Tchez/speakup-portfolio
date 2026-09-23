@@ -1,0 +1,580 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from './Icon.astro';
+import LanguageLink from './LanguageLink.astro';
+import Statement from './Statement.astro';
+import MediaCarousel from './MediaCarousel.astro';
+import { channels, copy, partners, rich, site, type Locale } from '../data/site';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = copy[locale];
+const external = { target: '_blank', rel: 'noopener' };
+const linkItems = [
+  { key: 'instagram', href: channels.instagram, icon: 'instagram' },
+  { key: 'whatsapp', href: channels.whatsapp, icon: 'whatsapp' },
+  { key: 'discord', href: channels.discord, icon: 'discord' },
+  { key: 'linkedin', href: channels.linkedin, icon: 'linkedin' },
+  { key: 'volunteerForm', href: channels.volunteerForm, icon: 'form' },
+  { key: 'email', href: `mailto:${channels.email}`, icon: 'email' },
+] as const;
+/** Slide order drives the index, the counter, the agenda and the docked logo's turns. Keep it in DOM order. */
+const slides = [
+  { id: 'inicio', title: t.deck.home },
+  { id: 'sumario', title: t.agenda.label },
+  { id: 'encontros', title: t.meetups.heading },
+  { id: 'por-que-participar', title: t.audience.heading },
+  { id: 'fotos', title: t.photos.heading },
+  { id: 'voluntarios', title: t.volunteer.heading },
+  { id: 'parceiros', title: t.partnersSection.heading },
+  { id: 'quem-somos', title: t.about.label },
+  { id: 'missao', title: t.mission.label },
+  { id: 'valores', title: t.values.heading },
+  { id: 'contato', title: t.links.heading },
+];
+const pad = (value: number) => String(value).padStart(2, '0');
+const year = new Date().getFullYear();
+---
+<Base locale={locale} home>
+  <main id="main">
+    <section class="section section-grey hero" id="inicio" aria-labelledby="hero-title">
+      <span class="blob" style="--size: 300px; --color: var(--blue); top: -140px; left: -130px;"></span>
+      <span class="blob" style="--size: 220px; --color: var(--red); bottom: -140px; right: -100px; --duration: 32s;"></span>
+      <div class="hero-top container"><LanguageLink locale={locale} /></div>
+      <div class="container hero-inner">
+        <img class="hero-logo" src={site.logo} width="520" height="520" alt={t.hero.logoAlt} fetchpriority="high" decoding="async" />
+        <div class="hero-copy">
+          <h1 id="hero-title"><span class="label">{t.hero.label}</span> <span class="hero-lead">{t.hero.lead}</span></h1>
+          <ul class="hero-points">
+            {t.hero.points.map((point) => <li><Icon name="check" /><span set:html={rich(point)} /></li>)}
+          </ul>
+          <div class="hero-actions">
+            <a class="button confetti-trigger" href={channels.instagram} {...external}>
+              <Icon name="instagram" />{t.hero.cta}<span class="visually-hidden"> {t.links.newTab}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-white agenda" id="sumario" aria-labelledby="agenda-title">
+      <div class="container">
+        <p class="label agenda-label" data-reveal>{t.agenda.label}</p>
+        <h2 class="slide-title" id="agenda-title" data-reveal>{t.agenda.heading}</h2>
+        <ol class="agenda-list">
+          {slides.map((slide, index) => index > 0 && (
+            <li data-reveal><a href={`#${slide.id}`} data-slide-link={slide.id} aria-current={slide.id === 'sumario' ? 'true' : undefined}><span class="agenda-num">{pad(index + 1)}</span><span class="agenda-title">{slide.title}</span><Icon name="arrow" /></a></li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section-blue on-dark" id="encontros" aria-labelledby="meetups-title">
+      <div class="container meetups-grid">
+        <div class="meetups-copy">
+          <h2 class="slide-title" id="meetups-title" data-reveal>{t.meetups.heading}</h2>
+          <p class="lead" data-reveal>{t.meetups.body}</p>
+          <div class="actions" data-reveal>
+            <a class="button" href={channels.instagram} {...external}>
+              <Icon name="instagram" />{t.meetups.cta}<span class="visually-hidden"> {t.links.newTab}</span>
+            </a>
+          </div>
+        </div>
+        <ul class="facts">
+          {t.meetups.facts.map((fact) => (
+            <li data-reveal><strong>{fact.big}</strong><span>{fact.small}</span></li>
+          ))}
+          <li class="fact-highlight" data-reveal><span class="label">{t.meetups.certificate.big}</span><span>{t.meetups.certificate.small}</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section-white" id="por-que-participar" aria-labelledby="audience-title">
+      <div class="container">
+        <h2 class="slide-title" id="audience-title" data-reveal>{t.audience.heading}</h2>
+        <p class="lead" set:html={rich(t.audience.lead)} data-reveal />
+        <ul class="benefits">
+          {t.audience.items.map((item) => <li data-reveal><Icon name="check" />{item}</li>)}
+        </ul>
+        <div class="actions" data-reveal>
+          <a class="button" href={channels.instagram} {...external}>
+            <Icon name="instagram" />{t.audience.cta}<span class="visually-hidden"> {t.links.newTab}</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-white" id="fotos" aria-labelledby="photos-title">
+      <div class="container">
+        <h2 class="slide-title" id="photos-title" data-reveal>{t.photos.heading}</h2>
+        <p class="lead" data-reveal>{t.photos.lead}</p>
+        <MediaCarousel locale={locale} labels={t.photos} />
+      </div>
+    </section>
+
+    <section class="section section-blue on-dark" id="voluntarios" aria-labelledby="volunteer-title">
+      <div class="container volunteer">
+        <h2 class="slide-title" id="volunteer-title" data-reveal>{t.volunteer.heading}</h2>
+        <p class="lead" data-reveal>{t.volunteer.body}</p>
+        <p class="lead" set:html={rich(t.volunteer.hours)} data-reveal />
+        <div class="actions" data-reveal>
+          <a class="button" href={channels.volunteerForm} {...external}>
+            <Icon name="form" />{t.volunteer.cta}<span class="visually-hidden"> {t.links.newTab}</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-white" id="parceiros" aria-labelledby="partners-title">
+      <div class="container">
+        <h2 class="slide-title" id="partners-title" data-reveal>{t.partnersSection.heading}</h2>
+        <p class="lead" data-reveal>{t.partnersSection.lead}</p>
+        <ul class="partner-list">
+          {partners.map((partner) => (
+            <li class="card partner" data-reveal>
+              <p class="label">{partner.role[locale]}</p>
+              <h3>{partner.name}</h3>
+              <ul class="perks">
+                {partner.perks[locale].map((perk) => <li><Icon name="check" /><span set:html={rich(perk)} /></li>)}
+              </ul>
+            </li>
+          ))}
+        </ul>
+        <div class="partner-join" data-reveal>
+          <h3>{t.partnersSection.join}</h3>
+          <a class="button" href={`mailto:${channels.email}`}><Icon name="email" />{t.partnersSection.cta}</a>
+        </div>
+      </div>
+    </section>
+
+    <Statement id="quem-somos" tone="white" copy={t.about} />
+
+    <Statement id="missao" tone="blue" copy={t.mission} />
+
+    <section class="section section-white" id="valores" aria-labelledby="values-title">
+      <div class="container">
+        <h2 class="slide-title" id="values-title" data-reveal>{t.values.heading}</h2>
+        <ol class="values-list">
+          {t.values.items.map((value, index) => (
+            <li class="value" data-reveal>
+              <span class="label" aria-hidden="true">{pad(index + 1)}</span>
+              <h3>{value.name}</h3>
+              <p>{value.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section-white" id="contato" aria-labelledby="links-title">
+      <div class="container">
+        <h2 class="slide-title" id="links-title" data-reveal>{t.links.heading}</h2>
+        <ul class="link-list">
+          {linkItems.map((item) => (
+            <li data-reveal>
+              <a class={`link-row link-${item.key}`} href={item.href} {...(item.key === 'email' ? {} : external)}>
+                <Icon name={item.icon} />
+                <span class="link-text"><span class="link-label">{t.links.items[item.key].label}</span><span class="link-hint">{t.links.items[item.key].hint}</span></span>
+                <span class="link-arrow" aria-hidden="true"><Icon name="arrow" /></span>
+                {item.key !== 'email' && <span class="visually-hidden"> {t.links.newTab}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer on-dark">
+    <div class="container footer-inner">
+      <p class="signature">{t.footer.signature}</p>
+      <p>{t.footer.tagline}</p>
+      <div class="footer-meta">
+        <p>© {year} {site.name} · {t.footer.credit} <a href={site.founder.url}>{site.founder.name}</a></p>
+        <LanguageLink locale={locale} />
+      </div>
+    </div>
+  </footer>
+
+  <!-- Progress header: slides in once the visitor leaves the hero (JS only; the page is complete without it). -->
+  <header class="deck-header">
+    <a class="deck-home" href="#inicio" data-slide-link="inicio" aria-label={`${site.name} — ${t.deck.home}`}>
+      <span class="dock"><img class="dock-static" src={site.logo} width="520" height="520" alt="" /></span>
+    </a>
+    <p class="deck-title" aria-hidden="true"><span class="deck-num" data-deck-num>01</span><span data-deck-title>{slides[0].title}</span></p>
+    <ol class="deck-progress" aria-hidden="true">
+      {slides.map((slide, index) => (
+        <li><a href={`#${slide.id}`} data-slide-link={slide.id} tabindex="-1" title={`${pad(index + 1)} · ${slide.title}`}></a></li>
+      ))}
+    </ol>
+    <div class="deck-actions">
+      <a class="icon-button icon-button-red" href={channels.instagram} {...external} title="Instagram" aria-label={`Instagram ${t.links.newTab}`}><Icon name="instagram" /></a>
+      <details class="deck-index">
+        <summary class="icon-button" title={t.deck.index}><Icon name="menu" /><span class="visually-hidden">{t.deck.index}</span></summary>
+        <ol>
+          {slides.map((slide, index) => (
+            <li><a href={`#${slide.id}`} data-slide-link={slide.id} data-title={slide.title}><span>{pad(index + 1)}</span>{slide.title}</a></li>
+          ))}
+        </ol>
+      </details>
+    </div>
+  </header>
+  <span class="deck-logo" aria-hidden="true"><img src={site.logo} width="520" height="520" alt="" /></span>
+</Base>
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const root = document.documentElement;
+  const sections = [...document.querySelectorAll<HTMLElement>('main > .section')];
+  const header = document.querySelector<HTMLElement>('.deck-header');
+  const title = document.querySelector<HTMLElement>('[data-deck-title]');
+  const num = document.querySelector<HTMLElement>('[data-deck-num]');
+  const titleBox = document.querySelector<HTMLElement>('.deck-title');
+  const segments = [...document.querySelectorAll<HTMLElement>('.deck-progress li')];
+  const index = document.querySelector<HTMLDetailsElement>('.deck-index');
+  const heroLogo = document.querySelector<HTMLImageElement>('.hero-logo');
+  const dock = document.querySelector<HTMLElement>('.dock');
+  const flyer = document.querySelector<HTMLElement>('.deck-logo');
+  const flyerImage = flyer?.querySelector('img');
+  let active = 0;
+
+  // Slide changes use their own fixed-duration scroll animation (the browser's smooth scroll has no
+  // set duration and can fight the snap). While one runs, the deck is locked: every other wheel
+  // event and key press is ignored, and the lock only releases once the slide has arrived and the
+  // wheel/trackpad gesture has gone quiet. Hero ↔ slide 2 is slower so the logo flight is visible.
+  const deckMode = window.matchMedia('(min-width: 1024px) and (min-height: 640px)');
+  const HERO_MS = 1100;
+  const SLIDE_MS = 700;
+  const QUIET_MS = 250;
+  const HOLD_MS = 150;
+  const easeInOut = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
+  let locked = false;
+  let lastInput = 0;
+  let scrollFrame = 0;
+
+  function goTo(position: number) {
+    const to = Math.max(0, Math.min(position, sections.length - 1));
+    const from = active;
+    const startY = window.scrollY;
+    const endY = sections[to].offsetTop;
+    cancelAnimationFrame(scrollFrame);
+    if (reduced || Math.abs(endY - startY) < 2) {
+      window.scrollTo(0, endY);
+      activate(to);
+      return;
+    }
+    locked = true;
+    const duration = from === 0 || to === 0 ? HERO_MS : SLIDE_MS;
+    const started = performance.now();
+    const step = (now: number) => {
+      const t = Math.min((now - started) / duration, 1);
+      window.scrollTo(0, startY + (endY - startY) * easeInOut(t));
+      if (t < 1) { scrollFrame = requestAnimationFrame(step); return; }
+      activate(to);
+      const arrived = performance.now();
+      const release = () => {
+        const now = performance.now();
+        if (now - arrived >= HOLD_MS && now - lastInput >= QUIET_MS) locked = false;
+        else setTimeout(release, 50);
+      };
+      release();
+    };
+    scrollFrame = requestAnimationFrame(step);
+  }
+
+  // Move one slide in a direction, unless the current slide is taller than the screen and the
+  // visitor hasn't reached its edge yet (then native scrolling continues inside it).
+  function page(direction: number) {
+    const rect = sections[active].getBoundingClientRect();
+    // A slide only a few pixels taller than the screen still pages like a normal one.
+    const TOLERANCE = 40;
+    const atEdge = direction > 0 ? rect.bottom <= window.innerHeight + TOLERANCE : rect.top >= -TOLERANCE;
+    const target = active + direction;
+    if (!atEdge || target < 0 || target >= sections.length) return false;
+    goTo(target);
+    return true;
+  }
+
+  window.addEventListener('wheel', (event) => {
+    if (!deckMode.matches || event.ctrlKey || Math.abs(event.deltaY) < Math.abs(event.deltaX)) return;
+    if ((event.target as Element).closest?.('.deck-index ol')) return;
+    lastInput = performance.now();
+    if (locked) { event.preventDefault(); return; }
+    if (event.deltaY && page(Math.sign(event.deltaY))) event.preventDefault();
+  }, { passive: false });
+
+  // Free scrolling that didn't come from the deck (scrollbar drag, native keys inside a tall slide)
+  // settles on the nearest slide once it stops, as long as that slide fits the screen.
+  let settleTimer = 0;
+  const settle = () => {
+    if (!deckMode.matches || locked) return;
+    const y = window.scrollY;
+    const last = sections[sections.length - 1];
+    if (y > last.offsetTop + 2) return; // in the footer
+    const nearest = sections.reduce((best, section, order) =>
+      Math.abs(section.offsetTop - y) < Math.abs(sections[best].offsetTop - y) ? order : best, 0);
+    const slide = sections[nearest];
+    if (slide.offsetHeight <= window.innerHeight + 40 && Math.abs(slide.offsetTop - y) > 2) goTo(nearest);
+  };
+  window.addEventListener('scroll', () => { clearTimeout(settleTimer); settleTimer = window.setTimeout(settle, 160); }, { passive: true });
+
+  const keys: Record<string, number> = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 };
+  window.addEventListener('keydown', (event) => {
+    if (!deckMode.matches || event.altKey || event.ctrlKey || event.metaKey) return;
+    if ((event.target as Element).closest?.('input, textarea, select, summary, button, .deck-index')) return;
+    const direction = event.key === ' ' ? (event.shiftKey ? -1 : 1) : keys[event.key];
+    const jump = event.key === 'Home' ? 0 : event.key === 'End' ? sections.length - 1 : undefined;
+    if (direction === undefined && jump === undefined) return;
+    if (locked) { event.preventDefault(); return; }
+    if (jump !== undefined) { event.preventDefault(); goTo(jump); return; }
+    if (page(direction)) event.preventDefault();
+  });
+
+  // Slide links (header logo, progress segments, index, agenda): jump, then close the index.
+  document.addEventListener('click', (event) => {
+    const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[data-slide-link]');
+    if (!link) return;
+    event.preventDefault();
+    if (index) index.open = false;
+    goTo(sections.findIndex((section) => section.id === link.dataset.slideLink));
+    history.replaceState(null, '', link.hash);
+  });
+  document.addEventListener('click', (event) => { if (index?.open && !index.contains(event.target as Node)) index.open = false; });
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && index?.open) { index.open = false; index.querySelector('summary')?.focus(); } });
+
+  // Hero → header. The logo and the header follow the scroll position itself (not timers), so the
+  // flight tracks the page exactly in both directions and can never land on a stale position.
+  const BASE = 100;
+  const clamp = (value: number) => Math.min(Math.max(value, 0), 1);
+  const ease = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
+  const mix = (from: number, to: number, t: number) => from + (to - from) * t;
+  // The header may still be sliding in, so measure the dock as if the header were already in place.
+  const dockTarget = () => {
+    const rect = dock!.getBoundingClientRect();
+    const offset = header ? header.getBoundingClientRect().top - parseFloat(getComputedStyle(header).top) : 0;
+    return new DOMRect(rect.left, rect.top - offset, rect.width, rect.height);
+  };
+  let frame = 0;
+  function render() {
+    frame = 0;
+    // Desktop decks spread the flight over the whole hero → slide 2 transition; on phones it ends when the
+    // hero logo would have scrolled out of view on its own.
+    const flightEnd = deckMode.matches ? sections[0].offsetHeight : heroLogo ? heroLogo.offsetTop + heroLogo.offsetHeight : sections[0].offsetHeight * 0.8;
+    const progress = clamp(window.scrollY / flightEnd);
+    const reveal = reduced ? Number(progress >= 0.5) : clamp((progress - 0.4) / 0.6);
+    root.style.setProperty('--reveal', String(reveal));
+    root.classList.toggle('on-hero', reveal === 0);
+    if (reduced || !flyer || !heroLogo || !dock) return;
+    if (progress === 0) {
+      flyer.style.visibility = 'hidden';
+      heroLogo.style.visibility = '';
+      return;
+    }
+    const from = heroLogo.getBoundingClientRect();
+    const to = dockTarget();
+    const t = ease(progress);
+    const size = mix(from.width, to.width, t);
+    const x = mix(from.left + from.width / 2, to.left + to.width / 2, t);
+    // Pin the start to the top edge so the logo never scrolls out of view before it docks.
+    const fromTop = Math.max(from.top, 12);
+    const y = mix(fromTop + from.height / 2, to.top + to.height / 2, t);
+    flyer.style.transform = `translate(${x}px, ${y}px) scale(${size / BASE}) rotate(${t * -360}deg) translate(-50%, -50%)`;
+    flyer.style.visibility = 'visible';
+    heroLogo.style.visibility = 'hidden';
+  }
+  const schedule = () => { if (!frame) frame = requestAnimationFrame(render); };
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  render();
+
+  // Between the other slides the docked logo turns once, in the direction of travel.
+  const spin = (direction: number) => {
+    if (reduced || !flyerImage) return;
+    flyerImage.animate([{ transform: 'rotate(0deg)' }, { transform: `rotate(${direction * 360}deg)` }], { duration: 700, easing: 'cubic-bezier(.65, 0, .35, 1)' });
+  };
+
+  function activate(position: number) {
+    if (position === active) return;
+    if (active > 0 && position > 0) spin(position > active ? 1 : -1);
+    active = position;
+    if (position > 0) {
+      if (num) num.textContent = String(position + 1).padStart(2, '0');
+      if (title) title.textContent = index?.querySelectorAll<HTMLElement>('a')[position]?.dataset.title ?? '';
+      if (!reduced) titleBox?.animate([{ opacity: 0, transform: 'translateY(60%)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.2, .7, .3, 1)' });
+    }
+    segments.forEach((segment, order) => {
+      segment.classList.toggle('is-done', order < position);
+      segment.classList.toggle('is-current', order === position);
+    });
+    index?.querySelectorAll('a').forEach((link, linkIndex) => link.setAttribute('aria-current', String(linkIndex === position)));
+  }
+  // The active slide is the one crossing the middle of the screen.
+  const middle = new IntersectionObserver((entries) => {
+    for (const entry of entries) if (entry.isIntersecting) activate(sections.indexOf(entry.target as HTMLElement));
+  }, { rootMargin: '-50% 0px -50% 0px' });
+  sections.forEach((section) => middle.observe(section));
+  // The footer belongs to the last slide (a jump straight to the end never crosses the slides in between).
+  const footer = document.querySelector('.site-footer');
+  if (footer) new IntersectionObserver(([entry]) => { if (entry.isIntersecting) activate(sections.length - 1); }, { rootMargin: '-50% 0px -50% 0px' }).observe(footer);
+  segments[0]?.classList.add('is-current');
+  index?.querySelector('a')?.setAttribute('aria-current', 'true');
+
+  if (!reduced && 'IntersectionObserver' in window) {
+    root.classList.add('motion');
+    // Content rises in each time its slide arrives, and resets once the slide has fully left.
+    const reveal = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const items = entry.target.querySelectorAll<HTMLElement>('[data-reveal]');
+        if (entry.intersectionRatio >= 0.15) items.forEach((element, order) => {
+          element.style.setProperty('--i', String(Math.min(order, 8)));
+          element.classList.add('is-visible');
+        });
+        else if (!entry.isIntersecting) items.forEach((element) => element.classList.remove('is-visible'));
+      }
+    }, { threshold: [0, 0.15] });
+    sections.forEach((section) => reveal.observe(section));
+
+  }
+
+  const colors = ['#EF1F22', '#2B90D8', '#FFFFFF', '#14364E'];
+  let lastBurst = -Infinity;
+  function burst(event: Event) {
+    const now = performance.now();
+    if (reduced || now - lastBurst < 1200) return;
+    lastBurst = now;
+    const button = event.currentTarget as HTMLElement;
+    for (let piece = 0; piece < 18; piece++) {
+      const bit = document.createElement('span');
+      bit.className = 'confetti-piece';
+      bit.setAttribute('aria-hidden', 'true');
+      bit.style.background = colors[piece % colors.length];
+      button.append(bit);
+      const angle = (Math.PI * 2 * piece) / 18 + Math.random() * 0.4;
+      const distance = 60 + Math.random() * 60;
+      bit.animate([
+        { transform: 'translate(-50%, -50%) rotate(0deg)', opacity: 1 },
+        { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) rotate(${Math.random() * 540}deg)`, opacity: 0 },
+      ], { duration: 700 + Math.random() * 300, easing: 'cubic-bezier(.2,.7,.3,1)' }).finished.then(() => bit.remove());
+    }
+  }
+  document.querySelectorAll('.confetti-trigger').forEach((button) => {
+    for (const type of ['pointerenter', 'focus', 'click']) button.addEventListener(type, burst);
+  });
+</script>
+
+<style>
+  .hero .container { width: min(1400px, 100% - 32px); }
+  .hero-top { position: absolute; top: 12px; left: 0; right: 0; display: flex; justify-content: flex-end; }
+
+  /* Hero */
+  .hero-inner { display: grid; gap: 20px; justify-items: center; text-align: center; }
+  .hero-logo { width: min(140px, 38vw); filter: drop-shadow(0 16px 26px rgb(20 54 78 / .25)); }
+  .hero-copy { display: grid; justify-items: center; gap: 18px; }
+  h1 { display: grid; gap: 18px; justify-items: inherit; }
+  .hero-lead { font-size: clamp(26px, 2.2vw + 16px, 62px); line-height: 1.16; letter-spacing: -.01em; text-wrap: balance; max-width: 18ch; }
+  .hero-points { list-style: none; padding: 0; display: grid; gap: 10px; justify-items: start; text-align: left; font-size: var(--text-lg); font-weight: 700; }
+  .hero-points li { display: flex; align-items: center; gap: 10px; }
+  @media (max-width: 520px) {
+    .hero-points { font-size: var(--text-base); }
+    .hero-actions .button { padding-inline: 20px; font-size: 15px; white-space: nowrap; }
+  }
+  @media (max-width: 359px) {
+    .hero-points { font-size: 15px; }
+    .hero-actions .button { white-space: normal; }
+  }
+  .hero-points :global(svg) { flex: none; width: 1.3em; height: 1.3em; padding: .2em; border-radius: 50%; background: var(--blue-deep); color: var(--white); stroke-width: 3; }
+  .hero-actions { display: grid; justify-items: center; gap: 12px; margin-top: 6px; }
+  .confetti-trigger :global(.confetti-piece) { position: absolute; left: 50%; top: 50%; width: 9px; height: 13px; border-radius: 2px; pointer-events: none; }
+
+  /* Agenda: every slide, numbered and clickable, in two even columns on desktop */
+  .agenda-label { font-size: clamp(22px, .8vw + 16px, 34px); margin-bottom: 20px; }
+  .agenda-list { list-style: none; padding: 0; margin: clamp(32px, 3vw + 12px, 64px) 0 0; display: grid; }
+  .agenda-list a { display: flex; align-items: center; gap: 18px; padding: clamp(10px, .6vw + 6px, 18px) 4px; border-bottom: 1px solid rgb(20 54 78 / .12); text-decoration: none; transition: color 160ms ease, padding 160ms ease; }
+  .agenda-list a:hover { color: var(--red-text); padding-left: 12px; }
+  .agenda-list a[aria-current='true'] { color: var(--red-text); }
+  .agenda-num { flex: none; min-width: 2ch; font-family: var(--font-condensed); font-size: clamp(22px, .8vw + 16px, 32px); color: var(--red-text); }
+  .agenda-title { flex: 1; font-family: var(--font-display); font-weight: 800; font-size: clamp(19px, .9vw + 12px, 32px); line-height: 1.2; }
+  .agenda-list a :global(svg) { flex: none; width: 22px; height: 22px; opacity: .35; transition: opacity 160ms ease, transform 160ms ease; }
+  .agenda-list a:hover :global(svg) { opacity: 1; transform: translateX(4px); }
+
+  /* Values */
+  .values-list { list-style: none; padding: 0; margin: 40px 0 0; display: grid; gap: 24px; }
+  .value { display: grid; grid-template-columns: auto 1fr; column-gap: 18px; align-items: baseline; }
+  .value .label { grid-row: span 2; font-size: clamp(30px, 1.4vw + 18px, 48px); }
+  .value p { color: var(--muted); font-size: var(--text-base); margin-top: 4px; }
+
+  /* Meetups */
+  .meetups-grid { display: grid; gap: 40px; }
+  .meetups-grid .lead { max-width: 30ch; }
+  .facts { list-style: none; padding: 0; display: grid; gap: clamp(20px, 1.4vw + 8px, 36px); }
+  .facts li { display: grid; gap: 4px; padding-left: clamp(16px, .6vw + 12px, 24px); border-left: 4px solid var(--red); font-size: var(--text-sm); }
+  .facts strong { font-family: var(--font-display); font-weight: 800; font-size: var(--text-h3); line-height: 1.2; }
+  .facts .fact-highlight .label { font-size: clamp(30px, 1.6vw + 18px, 52px); }
+
+  /* Why join: benefits with checks */
+  .benefits { list-style: none; padding: 0; margin-top: 36px; display: grid; gap: 14px 40px; }
+  .benefits li { display: flex; align-items: center; gap: 14px; font-family: var(--font-display); font-weight: 800; font-size: var(--text-h3); line-height: 1.25; }
+  .benefits :global(svg) { flex: none; width: 1.3em; height: 1.3em; padding: .22em; border-radius: 50%; background: var(--blue-deep); color: var(--white); stroke-width: 3; }
+  /* Partners */
+  .partner-list { list-style: none; padding: 0; margin-top: 40px; display: grid; gap: 20px; }
+  .partner { padding: clamp(24px, 1.6vw + 12px, 44px); }
+  .partner h3 { font-size: clamp(24px, 1.4vw + 14px, 44px); margin: 6px 0 18px; }
+  .perks { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .perks li { display: flex; align-items: flex-start; gap: 12px; font-size: var(--text-base); line-height: 1.45; }
+  .perks :global(svg) { flex: none; width: 1.35em; height: 1.35em; padding: .22em; margin-top: .05em; border-radius: 50%; background: var(--blue-deep); color: var(--white); stroke-width: 3; }
+  .partner-join { margin-top: 40px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
+
+  /* Contact: airy rows (icon · name + description · arrow), like the agenda and values */
+  .link-list { list-style: none; padding: 0; margin: clamp(28px, 2vw + 12px, 56px) 0 0; display: grid; }
+  .link-row { display: flex; align-items: center; gap: clamp(16px, 1vw + 8px, 28px); padding-block: clamp(16px, 1.1vw + 8px, 30px); border-bottom: 1px solid rgb(20 54 78 / .12); text-decoration: none; transition: color 160ms ease; }
+  .link-row > :global(svg) { flex: none; width: clamp(52px, 1.4vw + 34px, 64px); height: clamp(52px, 1.4vw + 34px, 64px); padding: 13px; border-radius: 18px; background: var(--blue-deep); color: var(--white); }
+  .link-text { display: grid; gap: 2px; min-width: 0; }
+  .link-label { font-family: var(--font-display); font-weight: 800; font-size: var(--text-h3); line-height: 1.2; white-space: nowrap; }
+  .link-hint { font-size: var(--text-sm); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .link-arrow { flex: none; display: grid; margin-left: auto; opacity: .35; transition: opacity 160ms ease, transform 160ms ease; }
+  .link-arrow :global(svg) { width: 24px; height: 24px; }
+  .link-row:hover .link-label { color: var(--red-text); }
+  .link-row:hover .link-arrow { opacity: 1; transform: translateX(4px); }
+
+  /* Footer */
+  .site-footer { background: var(--navy); color: var(--white); padding-block: 64px 40px; }
+  .footer-inner { display: grid; gap: 12px; font-size: var(--text-sm); }
+  .signature { font-family: var(--font-display); font-weight: 800; font-size: clamp(40px, 4vw + 16px, 96px); line-height: 1.05; }
+  .footer-meta { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / .25); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+  .footer-meta a { font-weight: 700; }
+
+  /* Phones and tablets: one column, CTAs after the content they sum up, tighter lists. */
+  @media (max-width: 1023px) {
+    .meetups-grid { gap: 0; }
+    .meetups-copy { display: contents; }
+    .meetups-grid .actions { order: 1; }
+    .facts { margin-top: 36px; }
+    .agenda-list { margin-top: 24px; }
+    .agenda-list a { gap: 14px; padding-block: 11px; }
+    .agenda-title { font-size: 18px; }
+    .agenda-num { font-size: 22px; }
+    .benefits { gap: 12px; }
+    .benefits li { font-size: 18px; }
+    .partner-join h3 { font-size: 20px; }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-top { top: 24px; }
+    .hero .container { width: min(1400px, 100% - 2 * var(--gutter)); }
+    .hero-inner { grid-template-columns: 1.5fr 1fr; align-items: center; text-align: left; justify-items: start; gap: 5vw; }
+    .hero-logo { order: 2; width: min(34vw, 62vh, 560px); justify-self: center; }
+    .hero-copy { justify-items: start; gap: 32px; }
+    .hero-actions { justify-items: start; }
+    .values-list { gap: 0; }
+    .value { grid-template-columns: 3ch minmax(10ch, 16ch) 1fr; column-gap: 3vw; align-items: baseline; padding-block: clamp(14px, 1vw + 6px, 26px); border-bottom: 1px solid rgb(20 54 78 / .12); }
+    .value .label { grid-row: auto; }
+    .value p { margin-top: 0; }
+    .meetups-grid { grid-template-columns: 1fr 1.1fr; align-items: center; gap: 7vw; }
+    .agenda-list { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(5, auto); grid-auto-flow: column; column-gap: 6vw; }
+    .benefits { grid-template-columns: 1fr 1fr; }
+    .partner-list { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+    .link-list { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, auto); grid-auto-flow: column; column-gap: 6vw; }
+  }
+</style>

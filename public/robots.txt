@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://speakup.tchez.dev/sitemap-index.xml
